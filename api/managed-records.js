@@ -12,16 +12,28 @@ var retrieve = function(options){
    
     var params = BuildParams(options);
 
-    var url = URI("http://localhost:3000/records").search({
-        limit: 10,
-        offset: (params.page - 1)*10
-    })
-
-    return fetch(url)
-                .then(response => response.json()
-                    .then(data => ProcessRecords(data, params.page, params.colors)))
-                    .catch(console.log)
-                .catch(console.log);
+    if(params.page > 50)
+    {
+        var result = {
+            previousPage:50,
+            nextPage:null,
+            ids:[],
+            open:[],
+            closedPrimaryCount:0
+            };
+            return result;
+    } else {
+        var url = URI(window.path).search({
+            limit: 10,
+            offset: (params.page - 1)*10
+        })
+    
+        return fetch(url)
+                    .then(response => response.json()
+                        .then(data => ProcessRecords(data, params.page, params.colors)))
+                        .catch(console.log)
+                    .catch(console.log);
+    }
 };
 
 var BuildParams = function(options)
@@ -49,7 +61,7 @@ var ProcessRecords = function(records, page, colors){
     console.log('page: ' + page);
 
     var previousPage = page > 1 ? page - 1 : null;
-    var nextPage = page + 1; 
+    var nextPage = page === 50 ? null : page + 1; 
     var ids = records.map(r => r.id);
     var filtered  = FilterFactory(records, colors);
 

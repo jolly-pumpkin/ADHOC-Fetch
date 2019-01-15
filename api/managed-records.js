@@ -17,16 +17,10 @@ var retrieve = function(options){
         offset: (page - 1)*10
     })
 
-    return fetch("http://localhost:3000/records")
-                .then(
-                    function(response){
-                        response.json().then(
-                            function(data){
-                                console.log(data);
-                            }
-                        )
-                    }
-                )
+    return fetch(url)
+                .then(response => response.json()
+                    .then(data => ProcessRecords(data)))
+                    .catch(console.log)
                 .catch(console.log);
 };
 
@@ -51,9 +45,7 @@ var retrieve = function(options){
     */
 
 
-var ProcessRecords = function(records){
-    console.log('processing');
-    console.log(records.json());
+    /*
     var processRecords = {
         previousPage:null,
         nextPage:2,
@@ -65,6 +57,25 @@ var ProcessRecords = function(records){
             {id:8,color:"green",disposition:"open",isPrimary:false},
             {id:10,color:"red",disposition:"open",isPrimary:true}],
         closedPrimaryCount:1};
+    */
+
+var ProcessRecords = function(records){
+    console.log('processing');
+    //console.log(records);
+    
+
+    var previousPage = null;//options.page > 1 ? options.page - 1 : null;
+    var nextPage = 2;//options.page + 1; 
+    var ids = [1,2,3,4,5,6,7,8,9,10];//temp.map(rec => rec.id);
+    var filtered  = Filter(records);
+
+    var processRecords = {
+        previousPage,
+        nextPage,
+        ids,
+        open: filtered,
+        closedPrimaryCount: 1
+    };
 
 
     console.log('processed');
@@ -73,21 +84,32 @@ var ProcessRecords = function(records){
 };
 
 var Filter = function(records){
-    let closedPrimaryCount = 0;
-    let open = records.reduce((filtered, item) => {
-        if(item.disposition === 'open'){
-            filtered.push({
-                id: item.id,
-                color: item.color,
-                disposition: item.disposition,
-                isPrimary: isPrimary
-            });
-        }else{
+    console.log("filtering");
+    console.log(records);
+
+    var primaryColors = ['red', 'yellow', 'blue'];
+
+    var closedPrimaryCount = 0;
+    var open = [];
+
+    records.forEach(record => {
+        console.log('record');
+        console.log(record);
+        if(record.disposition === 'open')
+        {
+            open.push({
+                id: record.id,
+                color: record.color,
+                disposition: record.disposition,
+                isPrimary: primaryColors.includes(record.color)
+            })
+        } else {
             closedPrimaryCount++;
         }
-        return filtered;
-    },[]);
-    return {open, closedPrimaryCount}
+    });
+    console.log('filtered');
+    console.log(open);
+    return open
 }
 
 export default retrieve;

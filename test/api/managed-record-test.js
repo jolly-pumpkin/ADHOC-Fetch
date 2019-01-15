@@ -10,7 +10,8 @@ describe("Records", function() {
       expect(output).toEqual(expected);
     }).then(done);
   });
-/*
+
+    
   describe('should return results for', function(){
     it('first page', function(done){
       var expected = {"previousPage":null,"nextPage":2,"ids":[1,2,3,4,5,6,7,8,9,10],"open":[{"id":2,"color":"yellow","disposition":"open","isPrimary":true},{"id":4,"color":"brown","disposition":"open","isPrimary":false},{"id":6,"color":"blue","disposition":"open","isPrimary":true},{"id":8,"color":"green","disposition":"open","isPrimary":false},{"id":10,"color":"red","disposition":"open","isPrimary":true}],"closedPrimaryCount":1};
@@ -18,18 +19,22 @@ describe("Records", function() {
         expect(output).toEqual(expected);
       }).then(done);
     });
+ 
     it('third page', function(done){
       var expected = {"previousPage":2,"nextPage":4,"ids":[21,22,23,24,25,26,27,28,29,30],"open":[{"id":23,"color":"red","disposition":"open","isPrimary":true},{"id":24,"color":"red","disposition":"open","isPrimary":true},{"id":25,"color":"red","disposition":"open","isPrimary":true},{"id":28,"color":"blue","disposition":"open","isPrimary":true}],"closedPrimaryCount":3};
       retrieve({page: 3}).then(function(output){
         expect(output).toEqual(expected);
       }).then(done);
     });
+    /*   
     it('fifteenth page with colors', function(done){
       var expected = {"previousPage":14,"nextPage":16,"ids":[236,237,238,240,241,243,246,251,252,256],"open":[{"id":240,"color":"blue","disposition":"open","isPrimary":true},{"id":241,"color":"red","disposition":"open","isPrimary":true},{"id":243,"color":"blue","disposition":"open","isPrimary":true},{"id":251,"color":"blue","disposition":"open","isPrimary":true},{"id":252,"color":"blue","disposition":"open","isPrimary":true},{"id":256,"color":"red","disposition":"open","isPrimary":true}],"closedPrimaryCount":4};
       retrieve({page: 15, colors: ["red", "blue", "brown"]}).then(function(output){
         expect(output).toEqual(expected);
       }).then(done);
     });
+
+
     it('thirty fourth page', function(done){
       var expected = {"previousPage":33,"nextPage":35,"ids":[331,332,333,334,335,336,337,338,339,340],"open":[{"id":332,"color":"brown","disposition":"open","isPrimary":false},{"id":334,"color":"green","disposition":"open","isPrimary":false},{"id":336,"color":"blue","disposition":"open","isPrimary":true},{"id":337,"color":"green","disposition":"open","isPrimary":false},{"id":339,"color":"green","disposition":"open","isPrimary":false},{"id":340,"color":"red","disposition":"open","isPrimary":true}],"closedPrimaryCount":2};
       retrieve({page: 34}).then(function(output){
@@ -42,8 +47,9 @@ describe("Records", function() {
         expect(output).toEqual(expected);
       }).then(done);
     });
+    */
   });
-
+/*
   it('should return an empty set of results for pages after the last page', function(done){
     var expected = {"previousPage":50,"nextPage":null,"ids":[],"open":[],"closedPrimaryCount":0};
     retrieve({page: 51}).then(function(output){

@@ -8,28 +8,50 @@ window.path = "http://localhost:3000/records";
 
 var retrieve = function(options){
     console.log("api hit");
-    console.log(options);
-
-    var page = 1;//options.page;
+    
+   
+    var params = BuildParams(options);
 
     var url = URI("http://localhost:3000/records").search({
         limit: 10,
-        offset: (page - 1)*10
+        offset: (params.page - 1)*10
     })
 
     return fetch(url)
                 .then(response => response.json()
-                    .then(data => ProcessRecords(data)))
+                    .then(data => ProcessRecords(data, params.page, params.colors)))
                     .catch(console.log)
                 .catch(console.log);
 };
 
+var BuildParams = function(options)
+{
+    console.log(options);
+    console.log(options === undefined);
 
-   /*
-    var previousPage = null;//options.page > 1 ? options.page - 1 : null;
-    var nextPage = 2;//options.page + 1; 
-    var ids = records.map(rec => rec.id);
-    let filtered  = Filter(records);
+    if(options === undefined)
+    {
+        return {
+            page: 1,
+            colors: null
+        }
+    } else {
+        return {
+            page: options.page === undefined ? 1 : options.page,
+            colors: options.colors === undefined ? null : options.colors,
+        }
+    }
+}
+
+var ProcessRecords = function(records, page, colors){
+    console.log('processing');
+    //console.log(records);
+    console.log('page: ' + page);
+
+    var previousPage = page > 1 ? page - 1 : null;
+    var nextPage = page + 1; 
+    var ids = records.map(r => r.id);
+    var filtered  = FilterFactory(records, colors);
 
     var processRecords = {
         previousPage,
@@ -39,59 +61,31 @@ var retrieve = function(options){
         closedPrimaryCount: filtered.closedPrimaryCount
     };
 
-    var j = JSON.stringify(processRecords); 
-    console.log(j);
-    return j;
-    */
-
-
-    /*
-    var processRecords = {
-        previousPage:null,
-        nextPage:2,
-        ids:[1,2,3,4,5,6,7,8,9,10],
-        open:[
-            {id:2,color:"yellow",disposition:"open",isPrimary:true},
-            {id:4,color:"brown",disposition:"open",isPrimary:false},
-            {id:6,color:"blue",disposition:"open",isPrimary:true},
-            {id:8,color:"green",disposition:"open",isPrimary:false},
-            {id:10,color:"red",disposition:"open",isPrimary:true}],
-        closedPrimaryCount:1};
-    */
-
-var ProcessRecords = function(records){
-    console.log('processing');
-    //console.log(records);
-    
-
-    var previousPage = null;//options.page > 1 ? options.page - 1 : null;
-    var nextPage = 2;//options.page + 1; 
-    var ids = [1,2,3,4,5,6,7,8,9,10];//temp.map(rec => rec.id);
-    var filtered  = Filter(records);
-
-    var processRecords = {
-        previousPage,
-        nextPage,
-        ids,
-        open: filtered,
-        closedPrimaryCount: 1
-    };
-
 
     console.log('processed');
     console.log(processRecords);
     return processRecords;
 };
 
-var Filter = function(records){
+var FilterFactory = function(records, colors){
     console.log("filtering");
     console.log(records);
+    
+    if(colors === null )
+    {
+        console.log("No color");
+        return FilterDisposition(records);
+    } else{
+        console.log("Color");
+        return FilterColor(records, colors);
+    }
+}
 
-    var primaryColors = ['red', 'yellow', 'blue'];
-
+var FilterDisposition = function(records)
+{
+    const primaryColors = ['red', 'yellow', 'blue'];
     var closedPrimaryCount = 0;
     var open = [];
-
     records.forEach(record => {
         console.log('record');
         console.log(record);
@@ -104,12 +98,41 @@ var Filter = function(records){
                 isPrimary: primaryColors.includes(record.color)
             })
         } else {
-            closedPrimaryCount++;
+            if(primaryColors.includes(record.color))
+                closedPrimaryCount++;
         }
     });
     console.log('filtered');
     console.log(open);
-    return open
+    return {open, closedPrimaryCount}
 }
+
+var FilterColor = function(records, colors)
+{
+    const primaryColors = ['red', 'yellow', 'blue'];
+    var closedPrimaryCount = 0;
+    var open = [];
+    records.forEach(record => {
+        console.log('record');
+        console.log(record);
+        if(record.disposition === 'open' && colors.includes(record.color))
+        {
+            open.push({
+                id: record.id,
+                color: record.color,
+                disposition: record.disposition,
+                isPrimary: primaryColors.includes(record.color)
+            })
+        } else {
+            if(primaryColors.includes(record.color))
+                closedPrimaryCount++;
+        }
+    });
+    console.log('filtered');
+    console.log(open);
+    return {open, closedPrimaryCount}
+}
+
+
 
 export default retrieve;

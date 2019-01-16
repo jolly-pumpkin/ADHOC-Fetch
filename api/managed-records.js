@@ -12,8 +12,7 @@ var retrieve = function(options){
 
     var page = GetPage(options);
 
-    if(page > 50)
-    {
+    if(page > 50) {
         console.log('page count over 50');
         return new Promise((resolve, reject) => {
             resolve(
@@ -29,9 +28,7 @@ var retrieve = function(options){
         });
             
     } else {
-
         var url = BuildURI(window.path, options);
-    
         console.log(url);
 
         return fetch(url)
@@ -46,8 +43,7 @@ var retrieve = function(options){
 var BuildURI = function(url, options){
     console.log('building uri');
     console.log(options === undefined);
-    if(options === undefined)
-    {
+    if(options === undefined){
         return URI(window.path).search({
             limit: 10,
             offset: 0,
@@ -58,20 +54,19 @@ var BuildURI = function(url, options){
         console.log(page);
 
         var colors = options.colors === undefined ? [] : options.colors;
-        console.log(colors)
-
-        return URI(window.path).search({
-            limit: 10,
-            offset: (page - 1)*10,
-            color: colors
-        });
+        console.log(colors);
+        
+       return URI(url)
+                .addSearch("limit",10)
+                .addSearch("offset", ((page-1)*10))
+                .addSearch("color[]",colors)
+            
     }
 }
 
 var GetPage = function(options)
 {
-    if(options === undefined)
-    {
+    if(options === undefined){
         return 1;
     } else {
         return  options.page === undefined ? 1 : options.page;
@@ -83,6 +78,15 @@ var ProcessRecords = function(records, page){
     //console.log(records);
     console.log('page: ' + page);
 
+    if(records.length === 0){
+       return {
+            previousPage:null,
+            nextPage:null,
+            ids:[],
+            open:[],
+            closedPrimaryCount:0
+       };
+   } else {
     var previousPage = page > 1 ? page - 1 : null;
     var nextPage = page === 50 ? null : page + 1; 
     var ids = records.map(r => r.id);
@@ -99,6 +103,7 @@ var ProcessRecords = function(records, page){
     console.log('processed');
     console.log(processRecords);
     return processRecords;
+   }
 };
 
 var Filter = function(records)
@@ -109,8 +114,7 @@ var Filter = function(records)
     records.forEach(record => {
         console.log('record');
         console.log(record);
-        if(record.disposition === 'open')
-        {
+        if(record.disposition === 'open'){
             open.push({
                 id: record.id,
                 color: record.color,

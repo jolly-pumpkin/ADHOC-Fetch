@@ -14,18 +14,26 @@ var retrieve = function(options){
 
     if(page > 50)
     {
-        var result = {
-            previousPage:50,
-            nextPage:null,
-            ids:[],
-            open:[],
-            closedPrimaryCount:0
-            };
-            return result;
+        console.log('page count over 50');
+        return new Promise((resolve, reject) => {
+            resolve(
+                {
+                    previousPage:50,
+                    nextPage:null,
+                    ids:[],
+                    open:[],
+                    closedPrimaryCount:0
+                    }
+            )
+            reject('API ERROR');
+        });
+            
     } else {
 
         var url = BuildURI(window.path, options);
     
+        console.log(url);
+
         return fetch(url)
                     .then(response => response.json()
                         .then(data => ProcessRecords(data, page))
@@ -36,9 +44,8 @@ var retrieve = function(options){
 
 
 var BuildURI = function(url, options){
-    console.log(options);
+    console.log('building uri');
     console.log(options === undefined);
-
     if(options === undefined)
     {
         return URI(window.path).search({
@@ -48,14 +55,18 @@ var BuildURI = function(url, options){
         });
     } else {
         var page = options.page === undefined ? 1 : options.page;
+        console.log(page);
+
+        var colors = options.colors === undefined ? [] : options.colors;
+        console.log(colors)
+
         return URI(window.path).search({
             limit: 10,
             offset: (page - 1)*10,
-            color:  options.colors === undefined ? [] : options.colors
+            color: colors
         });
     }
 }
-
 
 var GetPage = function(options)
 {
@@ -84,7 +95,6 @@ var ProcessRecords = function(records, page){
         open: filtered.open,
         closedPrimaryCount: filtered.closedPrimaryCount
     };
-
 
     console.log('processed');
     console.log(processRecords);

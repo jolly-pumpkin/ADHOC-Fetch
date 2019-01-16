@@ -8,11 +8,11 @@ window.path = "http://localhost:3000/records";
 
 var retrieve = function(options){
     console.log("api hit");
-    
-   
-    var params = BuildParams(options);
+    console.log(options);
 
-    if(params.page > 50)
+    var page = GetPage(options);
+
+    if(page > 50)
     {
         var result = {
             previousPage:50,
@@ -23,39 +23,51 @@ var retrieve = function(options){
             };
             return result;
     } else {
-        var url = URI(window.path).search({
-            limit: 10,
-            offset: (params.page - 1)*10
-        })
+
+        var url = BuildURI(window.path, options);
     
         return fetch(url)
                     .then(response => response.json()
-                        .then(data => ProcessRecords(data, params.page, params.colors)))
-                        .catch(console.log)
+                        .then(data => ProcessRecords(data, page))
+                        .catch(console.log))
                     .catch(console.log);
     }
 };
 
-var BuildParams = function(options)
-{
+
+var BuildURI = function(url, options){
     console.log(options);
     console.log(options === undefined);
 
     if(options === undefined)
     {
-        return {
-            page: 1,
-            colors: null
-        }
+        return URI(window.path).search({
+            limit: 10,
+            offset: 0,
+            color: []
+        });
     } else {
-        return {
-            page: options.page === undefined ? 1 : options.page,
-            colors: options.colors === undefined ? null : options.colors,
-        }
+        var page = options.page === undefined ? 1 : options.page;
+        return URI(window.path).search({
+            limit: 10,
+            offset: (page - 1)*10,
+            color:  options.colors === undefined ? [] : options.colors
+        });
     }
 }
 
-var ProcessRecords = function(records, page, colors){
+
+var GetPage = function(options)
+{
+    if(options === undefined)
+    {
+        return 1;
+    } else {
+        return  options.page === undefined ? 1 : options.page;
+    }
+}
+
+var ProcessRecords = function(records, page){
     console.log('processing');
     //console.log(records);
     console.log('page: ' + page);
@@ -63,7 +75,7 @@ var ProcessRecords = function(records, page, colors){
     var previousPage = page > 1 ? page - 1 : null;
     var nextPage = page === 50 ? null : page + 1; 
     var ids = records.map(r => r.id);
-    var filtered  = FilterFactory(records, colors);
+    var filtered  = Filter(records);
 
     var processRecords = {
         previousPage,
@@ -79,21 +91,7 @@ var ProcessRecords = function(records, page, colors){
     return processRecords;
 };
 
-var FilterFactory = function(records, colors){
-    console.log("filtering");
-    console.log(records);
-    
-    if(colors === null )
-    {
-        console.log("No color");
-        return FilterDisposition(records);
-    } else{
-        console.log("Color");
-        return FilterColor(records, colors);
-    }
-}
-
-var FilterDisposition = function(records)
+var Filter = function(records)
 {
     const primaryColors = ['red', 'yellow', 'blue'];
     var closedPrimaryCount = 0;
@@ -118,33 +116,5 @@ var FilterDisposition = function(records)
     console.log(open);
     return {open, closedPrimaryCount}
 }
-
-var FilterColor = function(records, colors)
-{
-    const primaryColors = ['red', 'yellow', 'blue'];
-    var closedPrimaryCount = 0;
-    var open = [];
-    records.forEach(record => {
-        console.log('record');
-        console.log(record);
-        if(record.disposition === 'open' && colors.includes(record.color))
-        {
-            open.push({
-                id: record.id,
-                color: record.color,
-                disposition: record.disposition,
-                isPrimary: primaryColors.includes(record.color)
-            })
-        } else {
-            if(primaryColors.includes(record.color))
-                closedPrimaryCount++;
-        }
-    });
-    console.log('filtered');
-    console.log(open);
-    return {open, closedPrimaryCount}
-}
-
-
 
 export default retrieve;
